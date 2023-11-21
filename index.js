@@ -8,6 +8,9 @@ import { initModule, createCompletion } from './openai.js';
 
 export { playAnswer }
 
+
+
+
 let openai;
 
 // Create reply

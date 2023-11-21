@@ -46,5 +46,17 @@
             "required": []
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_trading",
+            "description": "Get the best trading route possible for specific material",
+            "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+            }
+        }
     }
 ]
