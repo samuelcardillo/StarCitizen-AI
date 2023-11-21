@@ -45,8 +45,16 @@ let file;
 
 const initializeAssistants = async () => {
     let apiKeys = JSON.parse(await fs.readFile("./confs/api-keys.json", "utf-8"));
+
+    if(syncFs.existsSync("./voiceMsgs") === false) {
+        syncFs.mkdirSync("voiceMsgs");
+    }
+
     openai = new OpenAI({ apiKey: apiKeys.openai });
     await initModule(openai, apiKeys.elevenlabs);
+
+
+
 
     let personas = await fs.readdir("./confs/personas");
     for(const key in personas) {
