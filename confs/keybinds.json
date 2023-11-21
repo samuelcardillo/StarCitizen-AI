@@ -1,0 +1,14 @@
+{
+    "toggle_landinggears": {
+        "modifier": "",
+        "keys": ["n"]
+    },
+    "request_landing": {
+        "modifier": "alt",
+        "keys": ["n"]
+    },
+    "toggle_ship": {
+        "modifier": "",
+        "keys": ["u", "i"]
+    }
+}
