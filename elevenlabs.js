@@ -20,7 +20,8 @@ const exportSpeech = async (text, voiceId) => {
     "voice_settings": {
       "stability": 0.7,
       "similarity_boost": 1
-    }
+    },
+    "model_id": "eleven_multilingual_v2",
   }
 
   const res = await axios.post(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, options, {
