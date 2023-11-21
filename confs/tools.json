@@ -1,0 +1,50 @@
+[
+    {
+        "type": "function",
+        "function": {
+            "name": "toggle_landinggears",
+            "description": "Toggle the landing gears",
+            "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "request_landing",
+            "description": "Request takeoff or landing",
+            "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "toggle_ship",
+            "description": "Toggle the engines and the ship",
+            "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "describe_vision",
+            "description": "Determine if a visual description is needed",
+            "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": []
+            }
+        }
+    }
+]

@@ -51,9 +51,7 @@ const initializeAssistants = async () => {
     }
 
     openai = new OpenAI({ apiKey: apiKeys.openai });
-    await initModule(openai, apiKeys.elevenlabs);
-
-
+    await initModule(openai, apiKeys.elevenlabs, apiKeys.assistantKey);
 
 
     let personas = await fs.readdir("./confs/personas");

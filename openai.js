@@ -1,3 +1,4 @@
+import { promises as fs } from 'fs';
 import * as AssistantFunctions from './openai_functioncalls.js';
 import * as ElevenLabs from "./elevenlabs.js"
 import { playAnswer } from './index.js';
@@ -8,9 +9,34 @@ let processingActions = false;
 let openai;
 let assistant;
 
-const initModule = async (openaiConf, apikey) => {
+const initModule = async (openaiConf, apikey, assistantKey) => {
     openai = openaiConf;
-    assistant = await openai.beta.assistants.retrieve("asst_jeYPNDtt6xcsCXkPRZMDf2LP");
+
+    let tools = await JSON.parse(await fs.readFile(`./confs/tools.json`, "utf-8"));
+    let confFile = JSON.parse(await fs.readFile("./confs/api-keys.json", "utf-8"));
+
+
+    if(assistantKey === "") {
+        assistant = await openai.beta.assistants.create({
+            model: "gpt-4-1106-preview",
+            tools
+        });
+        console.log("[O] Created an assistant")
+        
+        confFile.assistantKey = assistant.id;
+        await fs.writeFile(`./confs/api-keys.json`, JSON.stringify(confFile));
+
+    } else {
+        assistant = await openai.beta.assistants.retrieve(assistantKey);
+
+        await openai.beta.assistants.update(
+            assistantKey, 
+            {
+                model: "gpt-4-1106-preview",
+                tools
+            }
+        )
+    }
     AssistantFunctions.initModule(openai);
     ElevenLabs.initModule(apikey)
 
