@@ -77,7 +77,7 @@ const initModule = async (openaiConf) => {
                             ],
                         },
                     ],
-                    // max_tokens: 1000,
+                    max_tokens: 1000,
                 });
 
                 finalResponse = response.choices[0].message.content;

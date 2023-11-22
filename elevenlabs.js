@@ -14,17 +14,17 @@ const initModule = async(apikey) => {
   xApiKey = apikey;
 }
 
-const exportSpeech = async (text, voiceId) => {
+const exportSpeech = async (text, ttsParams) => {
   let options = {
     "text": text,
     "voice_settings": {
       "stability": 0.7,
       "similarity_boost": 1
     },
-    "model_id": "eleven_multilingual_v2",
+    "model_id": ttsParams.model,
   }
 
-  const res = await axios.post(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, options, {
+  const res = await axios.post(`https://api.elevenlabs.io/v1/text-to-speech/${ttsParams.voiceId}`, options, {
     headers: {
       'content-type': 'application/json',
       'xi-api-key': xApiKey

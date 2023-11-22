@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import * as AssistantFunctions from './openai_functioncalls.js';
 import * as ElevenLabs from "./elevenlabs.js"
+import * as XVASynth from "./xvasynth.js"
 import { playAnswer } from './index.js';
 
 export { initModule, createCompletion }
@@ -43,7 +44,7 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
     return true;
 }
 
-const createCompletion = async (userInput, useEleven, chatId, voiceId, assistantInstructions) => {
+const createCompletion = async (userInput, chatId, ttsParams, assistantInstructions) => {
     const message = await openai.beta.threads.messages.create(
         chatId,
         {
@@ -119,10 +120,13 @@ const createCompletion = async (userInput, useEleven, chatId, voiceId, assistant
 
     let audio;
     let response = messages.data[0].content[0].text.value;
-    if(useEleven) {
-        audio = await ElevenLabs.exportSpeech(response, voiceId);
-    }
 
+    if(ttsParams.use === "elevenlabs") {
+        audio = await ElevenLabs.exportSpeech(response, ttsParams.elevenlabs);
+    } else {
+        audio = await XVASynth.exportSpeech(response, ttsParams.xvasynth);
+    }
+    
     playAnswer(response, chatId, audio);
 }
 

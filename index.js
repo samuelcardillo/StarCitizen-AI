@@ -14,11 +14,11 @@ export { playAnswer }
 let openai;
 
 // Create reply
-async function createReply(chatId, userMessage, assistantInstructions, voiceId) {
+async function createReply(chatId, userMessage, assistantInstructions, ttsParams) {
     let response;
 
     try {
-        response = await createCompletion(userMessage, true, chatId, voiceId, assistantInstructions);
+        response = await createCompletion(userMessage, chatId, ttsParams, assistantInstructions);
     } catch (e) {
         console.log("Failed at creating reply: ", e);
     }
@@ -85,7 +85,7 @@ const initializeAssistants = async () => {
                         record.stop()
                         let text = await transcribeAudio("voiceMsgs/userInput.wav");
                         console.log("You: ", text);
-                        createReply(persona.threadId, text, persona.instruction, persona.voiceId);
+                        createReply(persona.threadId, text, persona.instruction, persona.tts);
                     } catch(e) {
                         console.log(e);
                     }
