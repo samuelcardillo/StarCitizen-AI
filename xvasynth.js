@@ -36,7 +36,7 @@ const exportSpeech = async (text, ttsParams) => {
     let path = `${process.cwd()}\\voiceMsgs\\${uuid}.mp3`;
 
     console.log(process.cwd())
-    await loadModel(ttsParams.model);
+    await loadModel(ttsParams);
     console.log(ttsParams.model, "loaded")
 
     let options = { 
