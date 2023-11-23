@@ -9,7 +9,7 @@ export { exportSpeech }
 let lastModel = "";
 
 const loadModel = async (ttsParams) => {
-    modelName = ttsParams.model.split(".hg.pt")[0];
+    let modelName = ttsParams.model.split(".hg.pt")[0];
     let options = {
         "outputs":null,
         "model":`${ttsParams.installPath}/resources/app/models/${modelName}`,

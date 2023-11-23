@@ -121,7 +121,7 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
     let audio;
     let response = messages.data[0].content[0].text.value;
 
-    if(ttsParams.use === "elevenlabs") {
+    if(ttsParams.method === "elevenlabs") {
         audio = await ElevenLabs.exportSpeech(response, ttsParams.elevenlabs);
     } else {
         audio = await XVASynth.exportSpeech(response, ttsParams.xvasynth);
@@ -129,5 +129,3 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
     
     playAnswer(response, chatId, audio);
 }
-
-// createCompletion("using the computer vision do you see any craters on the imagery I'm looking at", false, "thread_KfSUH0qazaalBqbjPh6BSOU5", "0", "Babu")
