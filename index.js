@@ -4,7 +4,8 @@ import * as syncFs from 'fs';
 import keyListener from 'node-global-key-listener';
 import {playAudioFile} from 'audic';
 import * as record from 'node-mic-record';
-import { initModule, createCompletion } from './openai.js';
+import * as OpenAIModule from './openai.js';
+import * as HTTPServer from "./server.js";
 
 export { playAnswer }
 
@@ -18,26 +19,16 @@ async function createReply(chatId, userMessage, assistantInstructions, ttsParams
     let response;
 
     try {
-        response = await createCompletion(userMessage, chatId, ttsParams, assistantInstructions);
+        response = await OpenAIModule.createCompletion(userMessage, chatId, ttsParams, assistantInstructions);
     } catch (e) {
         console.log("Failed at creating reply: ", e);
     }
-}
 
-// Transcribe audio
-async function transcribeAudio(filename) {
-
-    const transcript = await openai.audio.transcriptions.create({
-        model: "whisper-1",
-        file: syncFs.createReadStream(filename)
-    });
-    return transcript.text;
+    return response;
 }
 
 // Play the answer
-const playAnswer = async (response, chatId, audio) => {
-    console.dir(response);
-
+const playAnswer = async (audio) => {
     await playAudioFile(`./voiceMsgs/${audio}`);
 }
 
@@ -54,7 +45,8 @@ const initializeAssistants = async () => {
     }
 
     openai = new OpenAI({ apiKey: apiKeys.openai });
-    await initModule(openai, apiKeys.elevenlabs, apiKeys.assistantKey);
+    await OpenAIModule.initModule(openai, apiKeys.elevenlabs, apiKeys.assistantKey);
+    await HTTPServer.initModule();
 
 
     let personas = await fs.readdir("./confs/personas");
@@ -83,9 +75,11 @@ const initializeAssistants = async () => {
                     try {
                         console.log("Recording stopped");
                         record.stop()
-                        let text = await transcribeAudio("voiceMsgs/userInput.wav");
+                        let text = await OpenAIModule.transcribeAudio("voiceMsgs/userInput.wav");
                         console.log("You: ", text);
-                        createReply(persona.threadId, text, persona.instruction, persona.tts);
+                        let reply = await createReply(persona.threadId, text, persona.instruction, persona.tts);
+                        console.log("AI : ", reply.response);
+                        playAnswer(reply.audio);
                     } catch(e) {
                         console.log(e);
                     }

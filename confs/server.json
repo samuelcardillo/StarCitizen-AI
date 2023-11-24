@@ -1,0 +1,9 @@
+{
+    "enable": true,
+    "port": 5446,
+    "ssl": {
+        "enable": false,
+        "key": "",
+        "cert": ""
+    }
+}

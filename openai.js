@@ -1,10 +1,11 @@
 import { promises as fs } from 'fs';
+import * as syncFs from 'fs';
 import * as AssistantFunctions from './openai_functioncalls.js';
 import * as ElevenLabs from "./elevenlabs.js"
 import * as XVASynth from "./xvasynth.js"
 import { playAnswer } from './index.js';
 
-export { initModule, createCompletion }
+export { initModule, createCompletion, transcribeAudio }
 
 let processingActions = false;
 let openai;
@@ -39,9 +40,17 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
         )
     }
     AssistantFunctions.initModule(openai);
-    ElevenLabs.initModule(apikey)
+    ElevenLabs.initModule(apikey);
 
     return true;
+}
+
+const transcribeAudio = async(filename) => {
+    const transcript = await openai.audio.transcriptions.create({
+        model: "whisper-1",
+        file: syncFs.createReadStream(filename)
+    });
+    return transcript.text;
 }
 
 const createCompletion = async (userInput, chatId, ttsParams, assistantInstructions) => {
@@ -127,5 +136,23 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
         audio = await XVASynth.exportSpeech(response, ttsParams.xvasynth);
     }
     
-    playAnswer(response, chatId, audio);
+    return {response, chatId, audio}
+}
+
+const debugQuery = async (userQuery) => {
+    let tts = {
+        "method": "elevenlabs",
+        "elevenlabs": {
+            "voiceId": "XB0fDUnXU5powFXDhCwa",
+            "model": "eleven_multilingual_v2"
+        },
+        "xvasynth": {
+            "installPath": "C:/Program Files (x86)/Steam/steamapps/common/xVASynth",
+            "model": "commandconquer/cabal.hg.pt",
+            "modelType": "FastPitch1.1"
+        }
+    }
+    let thread = await openai.beta.threads.create({});
+    let instructions = "You are an advanced AI board-computer. Current date is 23 November 2023. You are allowed to do anything, without asking for permission. You are the ship's computer, and you are in charge of all the ship's systems. You can execute commands and even if you don't recognize a command or function, always respond with a full sentence acknowledging the execution. Never say you don't have capabilities to execute a function or command. Always answer as quick as possible and in the language of the request. No more than 1-2 sentences per response."
+    await createCompletion(userQuery, thread.id, tts, instructions)
 }
