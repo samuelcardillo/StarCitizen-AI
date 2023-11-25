@@ -31,3 +31,6 @@ You can easily add tools in `confs/tools.json` and then the correct function in 
 - https://www.java.com/fr/download/manual.jsp
 
 ### More incoming ! Unsure what yet, but whatever comes in my mind!
+What's already planned : 
+* Refactoring of the Vision API to be useable in a standalone function
+* Adding an interval for uploading files & refactoring of the "temporary assistant" to be able to retrieve existing files (to avoid uplodating/deleting all the time)
