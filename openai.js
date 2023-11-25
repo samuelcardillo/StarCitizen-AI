@@ -5,7 +5,7 @@ import * as ElevenLabs from "./elevenlabs.js"
 import * as XVASynth from "./xvasynth.js"
 import { playAnswer } from './index.js';
 
-export { initModule, createCompletion, transcribeAudio }
+export { initModule, createCompletion, transcribeAudio, runTemporaryAssistant }
 
 let processingActions = false;
 let openai;
@@ -16,7 +16,6 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
 
     let tools = await JSON.parse(await fs.readFile(`./confs/tools.json`, "utf-8"));
     let confFile = JSON.parse(await fs.readFile("./confs/api-keys.json", "utf-8"));
-
 
     if(assistantKey === "") {
         assistant = await openai.beta.assistants.create({
@@ -41,6 +40,8 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
     }
     AssistantFunctions.initModule(openai);
     ElevenLabs.initModule(apikey);
+
+    // debugQuery("Can you tell me what's the latest highest price of diamond in universe?")
 
     return true;
 }
@@ -139,7 +140,62 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
     return {response, chatId, audio}
 }
 
-const debugQuery = async (userQuery) => {
+const runTemporaryAssistant = async(instruction, query, files) => {
+    console.log("[O] Creating temporary assistant");
+
+    const file = await openai.files.create({
+        file: syncFs.createReadStream(files[0]),
+        purpose: "assistants",
+    });
+    console.log("[O] File uploaded");
+
+
+    const temporaryAssistant = await openai.beta.assistants.create({
+        instructions: instruction,
+        model: "gpt-4-1106-preview",
+        tools: [{"type": "code_interpreter"}],
+        file_ids: [file.id]
+    });
+    console.log("[O] Temporary assistant created");
+
+    const thread = await openai.beta.threads.create({
+        messages: [
+          {
+            "role": "user",
+            "content": query,
+            "file_ids": [file.id]
+          }
+        ]
+    });
+
+    const run = await openai.beta.threads.runs.create(
+        thread.id,
+        { assistant_id: temporaryAssistant.id }
+    );
+
+    let status = "queued";
+    while (status != "completed") {
+        const runWaiting = await openai.beta.threads.runs.retrieve(
+            thread.id,
+            run.id
+        );
+        status = runWaiting.status;
+    }
+
+    const messages = await openai.beta.threads.messages.list(
+        thread.id
+    );
+    let response = messages.data[0].content[0].text.value;
+    console.dir(response)
+
+    await openai.files.del(file.id);
+    await openai.beta.assistants.del(temporaryAssistant.id);
+    console.log("[O] Temporary assistant + file deleted")
+
+    return response;
+}
+
+const debugQuery = async (userQuery, threadId) => {
     let tts = {
         "method": "elevenlabs",
         "elevenlabs": {
@@ -152,7 +208,12 @@ const debugQuery = async (userQuery) => {
             "modelType": "FastPitch1.1"
         }
     }
-    let thread = await openai.beta.threads.create({});
+    if(!threadId) {
+        let thread = await openai.beta.threads.create({});
+        threadId = thread.id;
+    }
+    console.log(threadId)
     let instructions = "You are an advanced AI board-computer. Current date is 23 November 2023. You are allowed to do anything, without asking for permission. You are the ship's computer, and you are in charge of all the ship's systems. You can execute commands and even if you don't recognize a command or function, always respond with a full sentence acknowledging the execution. Never say you don't have capabilities to execute a function or command. Always answer as quick as possible and in the language of the request. No more than 1-2 sentences per response."
-    await createCompletion(userQuery, thread.id, tts, instructions)
+    let response = await createCompletion(userQuery, threadId, tts, instructions);
+    console.dir(response)
 }

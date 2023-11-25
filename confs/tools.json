@@ -50,12 +50,26 @@
     {
         "type": "function",
         "function": {
-            "name": "get_trading",
-            "description": "Get the best trading route possible for specific material",
+            "name": "get_latest_prices",
+            "description": "Get the latest prices of all commodities",
             "parameters": {
-            "type": "object",
-            "properties": {},
-            "required": []
+                "type": "object",
+                "properties": {},
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_trading",
+            "description": "Get the best trading route possible",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {"type": "string", "description": "The current location of the user in the Star Citizen universe. Default: Unknown"}
+                },
+                "required": ["query"]
             }
         }
     }
