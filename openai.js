@@ -41,7 +41,7 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
     AssistantFunctions.initModule(openai);
     ElevenLabs.initModule(apikey);
 
-    // debugQuery("Can you tell me what's the latest highest price of diamond in universe?")
+    debugQuery("Okay so give me the best trade route for diamonds from ArcCorp")
 
     return true;
 }
@@ -143,10 +143,18 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
 const runTemporaryAssistant = async(instruction, query, files) => {
     console.log("[O] Creating temporary assistant");
 
-    const file = await openai.files.create({
-        file: syncFs.createReadStream(files[0]),
-        purpose: "assistants",
-    });
+    console.log("QUERY : ", query)
+
+    let uploadedFiles = [];
+
+    for(let i = 0; i < files.length; i++) {
+        let uploadedFile = await openai.files.create({
+            file: syncFs.createReadStream(files[i]),
+            purpose: "assistants",
+        });
+        uploadedFiles.push(uploadedFile.id)
+    }
+    console.dir(uploadedFiles)
     console.log("[O] File uploaded");
 
 
@@ -154,7 +162,7 @@ const runTemporaryAssistant = async(instruction, query, files) => {
         instructions: instruction,
         model: "gpt-4-1106-preview",
         tools: [{"type": "code_interpreter"}],
-        file_ids: [file.id]
+        file_ids: uploadedFiles
     });
     console.log("[O] Temporary assistant created");
 
@@ -163,7 +171,7 @@ const runTemporaryAssistant = async(instruction, query, files) => {
           {
             "role": "user",
             "content": query,
-            "file_ids": [file.id]
+            "file_ids": uploadedFiles
           }
         ]
     });
@@ -188,9 +196,11 @@ const runTemporaryAssistant = async(instruction, query, files) => {
     let response = messages.data[0].content[0].text.value;
     console.dir(response)
 
-    await openai.files.del(file.id);
+    for(let i = 0; i < uploadedFiles.length; i++) {
+        await openai.files.del(uploadedFiles[i]);
+    }
     await openai.beta.assistants.del(temporaryAssistant.id);
-    console.log("[O] Temporary assistant + file deleted")
+    console.log("[O] Temporary assistant + file(s) deleted")
 
     return response;
 }

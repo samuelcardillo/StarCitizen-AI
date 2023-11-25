@@ -67,9 +67,10 @@
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "location": {"type": "string", "description": "The current location of the user in the Star Citizen universe. Default: Unknown"}
+                    "location": {"type": "string", "description": "The current location of the user in the Star Citizen universe. Default: Unknown"},
+                    "commodities": {"type": "string", "description": "The commodities the user want for the trade route. Default: Unknown"}
                 },
-                "required": ["query"]
+                "required": ["location"]
             }
         }
     }

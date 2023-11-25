@@ -54,7 +54,8 @@ const initModule = async (openaiConf) => {
             return JSON.stringify(JSON.parse(res.data).data);
         },
         get_trading: async (params) => {
-            if(JSON.parse(params).location === "Unknown") return "Unknown location. Need to know where you are."
+            params = JSON.parse(params);
+            if(params.location === "Unknown" || !params.location) return "Unknown location. Need to know where you are."
 
             let latestPrices = await functionCallable["get_latest_prices"]();
 
@@ -62,7 +63,7 @@ const initModule = async (openaiConf) => {
 
             let response = await OpenAIModule.runTemporaryAssistant(
                 "You are a trade master who understand the art of trading",
-                `Find the best trade route from ${JSON.parse(params).location} by analyzing this JSON file containing the latest price of different commodities at different places. Answer simply and briefly, clearly stating what is the best trade route.`,
+                `Find the best trade route from ${params.location} ${ (params.commodities) ? `for ${params.commodities}` : ""} by analyzing this JSON file containing the latest price of different commodities at different places. Answer simply and briefly, clearly stating what is the best trade route.`,
                 ["./latestprices.json"]
             )
 
