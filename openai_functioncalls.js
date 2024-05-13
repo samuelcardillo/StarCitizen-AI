@@ -41,7 +41,7 @@ const initModule = async (openaiConf) => {
             return "success";
         },
         get_latest_prices: async() => { 
-            const res = await axios.get('https://portal.uexcorp.space/api/all_prices/pretty_mode/1/',
+            const res = await axios.get('https://uexcorp.space/api/2.0/commodities',
                 {
                     headers: {
                         'content-type': 'application/json',

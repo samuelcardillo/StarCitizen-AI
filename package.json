@@ -8,7 +8,7 @@
     "node-global-key-listener": "^0.1.1",
     "node-key-sender": "^1.0.11",
     "node-mic-record": "^0.0.1",
-    "openai": "^4.19.1",
+    "openai": "^4.46.0",
     "screenshot-desktop": "^1.15.0",
     "uuid": "^9.0.1"
   }

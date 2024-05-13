@@ -4,6 +4,7 @@ import * as AssistantFunctions from './openai_functioncalls.js';
 import * as ElevenLabs from "./elevenlabs.js"
 import * as XVASynth from "./xvasynth.js"
 import { playAnswer } from './index.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export { initModule, createCompletion, transcribeAudio, runTemporaryAssistant }
 
@@ -19,7 +20,7 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
 
     if(assistantKey === "") {
         assistant = await openai.beta.assistants.create({
-            model: "gpt-4-1106-preview",
+            model: "gpt-4o-2024-05-13",
             tools
         });
         console.log("[O] Created an assistant")
@@ -33,7 +34,7 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
         await openai.beta.assistants.update(
             assistantKey, 
             {
-                model: "gpt-4-1106-preview",
+                model: "gpt-4o-2024-05-13",
                 tools
             }
         )
@@ -41,7 +42,7 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
     AssistantFunctions.initModule(openai);
     ElevenLabs.initModule(apikey);
 
-    debugQuery("Okay so give me the best trade route for diamonds from ArcCorp")
+    debugQuery("Hello")
 
     return true;
 }
@@ -67,7 +68,7 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
         chatId,
         {
             assistant_id: assistant.id,
-            model: "gpt-4-1106-preview",
+            model: "gpt-4o-2024-05-13",
             instructions: assistantInstructions
         }
     );
@@ -130,9 +131,21 @@ const createCompletion = async (userInput, chatId, ttsParams, assistantInstructi
 
     let audio;
     let response = messages.data[0].content[0].text.value;
+    console.dir(ttsParams)
 
     if(ttsParams.method === "elevenlabs") {
         audio = await ElevenLabs.exportSpeech(response, ttsParams.elevenlabs);
+    } else if(ttsParams.method === "openai") { 
+        let uuid = uuidv4();
+        const mp3 = await openai.audio.speech.create({
+            model: "tts-1",
+            voice: "alloy",
+            input: response,
+          });
+          const buffer = Buffer.from(await mp3.arrayBuffer());
+          await fs.writeFile(`./voiceMsgs/${uuid}.mp3`, buffer);
+
+          audio = `${uuid}.mp3`;
     } else {
         audio = await XVASynth.exportSpeech(response, ttsParams.xvasynth);
     }
@@ -207,7 +220,7 @@ const runTemporaryAssistant = async(instruction, query, files) => {
 
 const debugQuery = async (userQuery, threadId) => {
     let tts = {
-        "method": "elevenlabs",
+        "method": "openai",
         "elevenlabs": {
             "voiceId": "XB0fDUnXU5powFXDhCwa",
             "model": "eleven_multilingual_v2"
