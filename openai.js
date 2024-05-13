@@ -42,7 +42,7 @@ const initModule = async (openaiConf, apikey, assistantKey) => {
     AssistantFunctions.initModule(openai);
     ElevenLabs.initModule(apikey);
 
-    debugQuery("Hello")
+    // debugQuery("Describe to me what is in front of me")
 
     return true;
 }

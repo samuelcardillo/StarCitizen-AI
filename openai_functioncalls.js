@@ -77,12 +77,12 @@ const initModule = async (openaiConf) => {
                 const imageAsBase64 = syncFs.readFileSync("./lastImage.jpg", 'base64');
                 let imagesContent = {
                     type: 'image_url',
-                    image_url: `data:image/png;base64,${imageAsBase64}`,
+                    image_url: { url: `data:image/png;base64,${imageAsBase64}` } ,
                 }
                 console.log("Picture taken")
 
                 const response = await openai.chat.completions.create({
-                    model: 'gpt-4-vision-preview',
+                    model: 'gpt-4o-2024-05-13',
                     messages: [
                         { role: 'system', content: "You roleplay a spaceship AI answering the requests of captain Samuel. Never describe any HUD. Make your answer sounds serious and brief." },
                         {
